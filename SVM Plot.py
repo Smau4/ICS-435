@@ -1,9 +1,11 @@
-#Code was taken from the sklearn online tutorials
+# Code was taken from the sklearn online tutorials
 print(__doc__)
 
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import svm, datasets
+# Benchmark contains Glenn's dataset generation functions
+from benchmark import Benchmark
 
 
 def make_meshgrid(x, y, h=.02):
@@ -41,16 +43,29 @@ def plot_contours(ax, clf, xx, yy, **params):
     Z = Z.reshape(xx.shape)
     out = ax.contourf(xx, yy, Z, **params)
     return out
+
 # generate noise for dataset
 gaussianNoise = np.random.normal(0,1,10)
 print(gaussianNoise)
 # import some data to play with
 iris = datasets.load_iris()
 # Take the first two features. We could avoid this by using a two-dim dataset
-X = iris.data[:, :2]
-y = iris.target
 
-# we create an instance of SVM and fit out data. We do not scale our
+# generated linear data
+a = Benchmark.generate_linear(100, 0.001, 2)
+print()
+# X contains data points and y contains labels
+X = a[0]
+y = a[1]
+
+print(X)
+print(y)
+# iris data set separation (may want to hold onto this for later)
+# X = iris.data[:, :2]
+# y = iris.target
+# X0, X1 = X[:, 0], X[:, 1]
+
+# we create an instance of SVM and fit our data. We do not scale our
 # data since we want to plot the support vectors
 C = 100  # SVM regularization parameter
 print(C)
@@ -70,7 +85,18 @@ titles = ('SVC with linear kernel',
 fig, sub = plt.subplots(2, 2)
 plt.subplots_adjust(wspace=0.4, hspace=0.4)
 
-X0, X1 = X[:, 0], X[:, 1]
+X0 = []
+X1 = []
+for array_point in X:
+    X0.append(array_point[0])
+    X1.append(array_point[1])
+
+X0 = np.array(X0)
+X1 = np.array(X1)
+#print()
+#print(X0)
+#print(X1)
+
 xx, yy = make_meshgrid(X0, X1)
 
 for clf, title, ax in zip(models, titles, sub.flatten()):
