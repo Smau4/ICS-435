@@ -3,7 +3,9 @@ print(__doc__)
 import numpy as np
 import math as math
 import matplotlib.pyplot as plt
-from sklearn import svm
+from sklearn import svm, metrics
+# Benchmark contains Glenn's dataset generation functions
+from benchmark import Benchmark
 
 def make_meshgrid(x, y, h=.02):
     """Create a mesh of points to plot in
@@ -37,6 +39,7 @@ def plot_contours(ax, clf, xx, yy, **params):
     params: dictionary of params to pass to contourf, optional
     """
     Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    # ("Confusion matrix for %s:\n%s" % (title, metrics.confusion_matrix(y, Z)))
     Z = Z.reshape(xx.shape)
     out = ax.contourf(xx, yy, Z, **params)
     return out
@@ -68,19 +71,30 @@ def generate_points_and_labels(x, y, num):
     
         
 num = 50
+
+# Generate Glenn's linear data ###################
+#a = Benchmark.generate_linear(100, 0.001, 2)
+#print()
+# X contains data points and y contains labels
+#X = a[0]
+#y = a[1]
+
+#print(X)
+#print(y)
+##################################################
+
 data, labels = generate_points_and_labels(10,10,num)
 
 gaussian_noise = np.random.normal(scale=3.0, size=(num,2))
 poisson_noise = np.random.poisson(size=(num,2))
 
 # Add in noise
-
-X = data + gaussian_noise
+X = data #+ gaussian_noise
 y = labels
 
 # We create instances of SVM with different values of nu and fit out data. We do not scale our
 # data since we want to plot the support vectors
-kernelFunc = 'poly'
+kernelFunc = 'linear'
 
 models = (svm.NuSVC(nu=0.1, kernel=kernelFunc),
           svm.NuSVC(nu=0.3, kernel=kernelFunc),
@@ -98,6 +112,19 @@ titles = ('0.1',
 fig, sub = plt.subplots(2, 2)
 plt.subplots_adjust(wspace=0.4, hspace=0.4)
 
+
+# Process Glenn's linear data ###################
+#X0 = []
+#X1 = []
+#for array_point in X:
+#    X0.append(array_point[0])
+#    X1.append(array_point[1])
+
+#X0 = np.array(X0)
+#X1 = np.array(X1)
+#print()
+#print(X0)
+#print(X1)
 X0, X1 = X[:, 0], X[:, 1]
 xx, yy = make_meshgrid(X0, X1)
 
@@ -107,8 +134,8 @@ for clf, title, ax in zip(models, titles, sub.flatten()):
     ax.scatter(X0, X1, c=y, cmap=plt.cm.coolwarm, s=20, edgecolors='k')
     ax.set_xlim(xx.min(), xx.max())
     ax.set_ylim(yy.min(), yy.max())
-    ax.set_xlabel('Sepal length')
-    ax.set_ylabel('Sepal width')
+    ax.set_xlabel('X-axis')
+    ax.set_ylabel('Y-axis')
     ax.set_xticks(())
     ax.set_yticks(())
     ax.set_title(title)
