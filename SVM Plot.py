@@ -3,7 +3,7 @@ print(__doc__)
 
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn import svm, datasets
+from sklearn import svm, datasets, metrics
 # Benchmark contains Glenn's dataset generation functions
 from benchmark import Benchmark
 
@@ -48,8 +48,12 @@ def plot_contours(ax, clf, xx, yy, **params):
 gaussianNoise = np.random.normal(0,1,10)
 print(gaussianNoise)
 # import some data to play with
-iris = datasets.load_iris()
+# iris = datasets.load_iris()
 # Take the first two features. We could avoid this by using a two-dim dataset
+# iris data set separation (may want to hold onto this for later)
+# X = iris.data[:, :2]
+# y = iris.target
+# X0, X1 = X[:, 0], X[:, 1]
 
 # generated linear data
 a = Benchmark.generate_linear(100, 0.001, 2)
@@ -60,10 +64,6 @@ y = a[1]
 
 print(X)
 print(y)
-# iris data set separation (may want to hold onto this for later)
-# X = iris.data[:, :2]
-# y = iris.target
-# X0, X1 = X[:, 0], X[:, 1]
 
 # we create an instance of SVM and fit our data. We do not scale our
 # data since we want to plot the support vectors
@@ -105,8 +105,10 @@ for clf, title, ax in zip(models, titles, sub.flatten()):
     ax.scatter(X0, X1, c=y, cmap=plt.cm.coolwarm, s=20, edgecolors='k')
     ax.set_xlim(xx.min(), xx.max())
     ax.set_ylim(yy.min(), yy.max())
-    ax.set_xlabel('Sepal length')
-    ax.set_ylabel('Sepal width')
+    ax.set_xlabel('X-axis')
+    ax.set_ylabel('Y-axis')
+    # ax.set_ylabel('Sepal width')
+    # ax.set_xlabel('Sepal length')
     ax.set_xticks(())
     ax.set_yticks(())
     ax.set_title(title)
