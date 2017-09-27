@@ -3,7 +3,7 @@ print(__doc__)
 
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn import svm, datasets, metrics
+from sklearn import svm, datasets
 # Benchmark contains Glenn's dataset generation functions
 from benchmark import Benchmark
 
@@ -105,8 +105,8 @@ for clf, title, ax in zip(models, titles, sub.flatten()):
     ax.scatter(X0, X1, c=y, cmap=plt.cm.coolwarm, s=20, edgecolors='k')
     ax.set_xlim(xx.min(), xx.max())
     ax.set_ylim(yy.min(), yy.max())
-    ax.set_xlabel('X-axis')
-    ax.set_ylabel('Y-axis')
+    ax.set_ylabel('X-axis')
+    ax.set_xlabel('Y-axis')
     # ax.set_ylabel('Sepal width')
     # ax.set_xlabel('Sepal length')
     ax.set_xticks(())
