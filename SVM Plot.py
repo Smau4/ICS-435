@@ -10,7 +10,7 @@ import sqlite3
 from sqlite3 import Error
 import os
 
-
+### Database functions #########################################
 def create_connection(db_file):
     """ create a database connection to a SQLite database """
     try:
@@ -32,6 +32,45 @@ def create_table(conn, create_table_sql):
         c.execute(create_table_sql)
     except Error as e:
         print(e)
+
+def record_trial(conn, trial):
+    """
+    Create a new project into the projects table
+    :param conn: connection to sqlite db
+    :param param_varied: parameter that is varied
+    :return: trial id
+    """
+    sql = ''' INSERT INTO Trials(param_varied)
+              VALUES(?) '''
+    cur = conn.cursor()
+    cur.execute(sql, trial)
+    return cur.lastrowid
+
+def record_data(conn, data):
+    """
+    Create a new project into the projects table
+    :param conn: connection to sqlite db
+    :param data: x coord, y coord, and a label
+    :return: data id (id for that point)
+    """
+    sql = ''' INSERT INTO TrialData(trial_id, x_point, y_point, label)
+              VALUES(?,?,?,?) '''
+    cur = conn.cursor()
+    cur.execute(sql, data)
+    return cur.lastrowid
+
+def record_results(conn, results):
+    """
+    Create a new project into the projects table
+    :param conn: connection to sqlite db
+    :param data: numbers of true negatives, false negatives, true positives, and false positives after training
+    :return: result id
+    """
+    sql = ''' INSERT INTO TrialResults(trial_id, true_neg, false_neg, true_pos, false_pos, nu_val)
+              VALUES(?,?,?,?) '''
+    cur = conn.cursor()
+    cur.execute(sql, data)
+    return cur.lastrowid
 
 
 def make_meshgrid(x, y, h=.02):
@@ -100,17 +139,14 @@ if __name__ == '__main__':
 
     # create a database connection
     conn = create_connection(os.getcwd() + database_name)
-    if conn is not None:
-        # create projects table
-        create_table(conn, sql_create_projects_table)
-        # create tasks table
-        # create_table(conn, sql_create_tasks_table)
-    else:
-        print("Error! cannot create the database connection.")
 
 num_samples = 100
 
 for i in range(25):
+    if conn is not None:
+
+    else:
+        print("Error! cannot create the database connection.")
     print('Trial %d\n' % i)
 
     # Generate Glenn's linear data ###################
