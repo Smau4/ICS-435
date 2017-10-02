@@ -10,7 +10,10 @@ import sqlite3
 from sqlite3 import Error
 import os
 
-### Database functions #########################################
+#Choose to generate meshgrid or generate a confusion matrix
+meshgrids = True
+
+### Database functions ########################################
 def create_connection(db_file):
     """ create a database connection to a SQLite database """
     try:
@@ -139,16 +142,19 @@ if __name__ == '__main__':
 
     # create a database connection
     conn = create_connection(database_name)
-
     param_varied = ('nu',)
+
     if conn is not None:
         record_trial(conn, param_varied)
     else:
         print("Error! cannot create the database connection.")
 
 num_samples = 100
+trials = 25
+if meshgrids == True:
+    trials = 1
 
-for i in range(25):
+for i in range(trials):
     print('Trial %d\n' % i)
 
     # Generate Glenn's linear data ###################
@@ -163,12 +169,32 @@ for i in range(25):
     ##################################################
 
     data, labels = generate_points_and_labels(10, 10, num_samples)
-
-    gaussian_noise = np.random.normal(scale=3.0, size=(num_samples, 2))
-    poisson_noise = np.random.poisson(size=(num_samples, 2))
+    sd = 2.0
+    
+    # Generates gaussian and poisson noise.
+    # gaussian_noise - error generated from gaussian curve w/ mean = 0 and sd 
+    # poisson noise - poisson noise generates a curver with mean = lam and sd = sqrt(lam).  To make this comparable
+    # with gaussian_noise, we shift the poisson noise by lam.
+    
+    gaussian_noise = np.random.normal(scale=sd, size=(num_samples, 2))
+    poisson_noise = np.random.poisson(lam=sd*sd,size=(num_samples, 2)) - np.ones((num_samples, 2))*sd*sd
+    
+#    Checking the variance of each set    
+    gaussian_sum = 0
+    poisson_sum = 0
+#    for point in gaussian_noise:
+#        for coordinate in point:
+#            gaussian_sum = gaussian_sum + coordinate * coordinate
+#            
+#    for point in poisson_noise:
+#        for coordinate in point:
+#            poisson_sum = poisson_sum + coordinate * coordinate
+#    
+#    print (gaussian_sum/200)
+#    print (poisson_sum/200)
 
     # Add in noise
-    X = data + gaussian_noise
+    X = data + poisson_noise
     y = labels
 
     # We create instances of SVM with different values of nu and fit out data. We do not scale our
@@ -176,7 +202,9 @@ for i in range(25):
     kernelFunc = 'linear'
 
     models = (svm.NuSVC(nu=0.1, kernel=kernelFunc),
+              svm.NuSVC(nu=0.2, kernel=kernelFunc),
               svm.NuSVC(nu=0.3, kernel=kernelFunc),
+              svm.NuSVC(nu=0.4, kernel=kernelFunc),
               svm.NuSVC(nu=0.5, kernel=kernelFunc),
               svm.NuSVC(nu=0.6, kernel=kernelFunc))
     #models = (clf.fit() for clf in models)
@@ -184,13 +212,17 @@ for i in range(25):
 
     # title for the plots
     titles = ('0.1',
+              '0.2',
               '0.3',
+              '0.4',
               '0.5',
               '0.6')
-
+    
+    if meshgrids == True:
+        
     # Set-up 2x2 grid for plotting.
-    #  fig, sub = plt.subplots(2, 2)
-    #  plt.subplots_adjust(wspace=0.4, hspace=0.4)
+        fig, sub = plt.subplots(2,3)
+        plt.subplots_adjust(wspace=0.3, hspace=0.3)
 
 
     # Process Glenn's linear data ###################
@@ -207,25 +239,29 @@ for i in range(25):
     #  print(X1)
     ##################################################
 
-    #  X0, X1 = X[:, 0], X[:, 1]
-    #  xx, yy = make_meshgrid(X0, X1)
+        X0, X1 = X[:, 0], X[:, 1]
+        xx, yy = make_meshgrid(X0, X1)
+    
+        for clf, title, ax in zip(models, titles, sub.flatten()):
+            plot_contours(ax, clf, xx, yy,
+            cmap=plt.cm.coolwarm, alpha=0.8)
+            ax.scatter(X0, X1, c=y, cmap=plt.cm.coolwarm, s=20, edgecolors='k')
+            ax.set_xlim(xx.min(), xx.max())
+            ax.set_ylim(yy.min(), yy.max())
+            ax.set_xlabel('X-axis')
+            ax.set_ylabel('Y-axis')
+            ax.set_xticks(())
+            ax.set_yticks(())
+            ax.set_title(title)
 
-    for clf, title in zip(models, titles):
-        expected = y[num_samples // 2:]
-        predicted = clf.predict(X[num_samples // 2:])
-        print("Confusion matrix nu=%s:\n%s" % (title, metrics.confusion_matrix(expected, predicted)))
+        plt.show()
+    
+    else:
+        for clf, title in zip(models, titles):
+            expected = y[num_samples // 2:]
+            predicted = clf.predict(X[num_samples // 2:])
+            print("Confusion matrix nu=%s:\n%s" % (title, metrics.confusion_matrix(expected, predicted)))
 
-    print('\n')
-    #for clf, title, ax in zip(models, titles, sub.flatten()):
-    #    plot_contours(ax, clf, xx, yy,
-    #                  cmap=plt.cm.coolwarm, alpha=0.8)
-    #    ax.scatter(X0, X1, c=y, cmap=plt.cm.coolwarm, s=20, edgecolors='k')
-    #    ax.set_xlim(xx.min(), xx.max())
-    #    ax.set_ylim(yy.min(), yy.max())
-    #    ax.set_xlabel('X-axis')
-    #    ax.set_ylabel('Y-axis')
-    #    ax.set_xticks(())
-    #    ax.set_yticks(())
-    #    ax.set_title(title)
-
-    #plt.show()
+        print('\n')
+    
+    
