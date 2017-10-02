@@ -10,13 +10,11 @@ import sqlite3
 from sqlite3 import Error
 import os
 
-<<<<<<< HEAD
 #Choose to generate meshgrid or generate a confusion matrix
 meshgrids = True
 
 =======
-### Database functions #########################################
->>>>>>> origin/master
+### Database functions ########################################
 def create_connection(db_file):
     """ create a database connection to a SQLite database """
     try:
@@ -148,19 +146,15 @@ if __name__ == '__main__':
 
 num_samples = 100
 
-<<<<<<< HEAD
 trials = 25
 if meshgrids == True:
     trials = 1
 
 for i in range(trials):
-=======
-for i in range(25):
     if conn is not None:
 
     else:
         print("Error! cannot create the database connection.")
->>>>>>> origin/master
     print('Trial %d\n' % i)
 
     # Generate Glenn's linear data ###################
