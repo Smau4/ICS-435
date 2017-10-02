@@ -138,15 +138,17 @@ if __name__ == '__main__':
     database_name = "svmsqlite.db"
 
     # create a database connection
-    conn = create_connection(os.getcwd() + database_name)
+    conn = create_connection(database_name)
+
+    param_varied = ('nu',)
+    if conn is not None:
+        record_trial(conn, param_varied)
+    else:
+        print("Error! cannot create the database connection.")
 
 num_samples = 100
 
 for i in range(25):
-    if conn is not None:
-
-    else:
-        print("Error! cannot create the database connection.")
     print('Trial %d\n' % i)
 
     # Generate Glenn's linear data ###################
