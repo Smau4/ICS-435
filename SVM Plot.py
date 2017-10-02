@@ -6,6 +6,21 @@ import matplotlib.pyplot as plt
 from sklearn import svm, metrics
 # Benchmark contains Glenn's dataset generation functions
 from benchmark import Benchmark
+import sqlite3
+from sqlite3 import Error
+import os
+
+
+def create_connection(db_file):
+    """ create a database connection to a SQLite database """
+    try:
+        conn = sqlite3.connect(db_file)
+        print('SQLite version: %s' % sqlite3.version)
+        print()
+        conn.close()
+    except Error as e:
+        print(e)
+
 
 def make_meshgrid(x, y, h=.02):
     """Create a mesh of points to plot in
@@ -39,7 +54,6 @@ def plot_contours(ax, clf, xx, yy, **params):
     params: dictionary of params to pass to contourf, optional
     """
     Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
-    # ("Confusion matrix for %s:\n%s" % (title, metrics.confusion_matrix(y, Z)))
     Z = Z.reshape(xx.shape)
     out = ax.contourf(xx, yy, Z, **params)
     return out
@@ -68,76 +82,90 @@ def generate_points_and_labels(x, y, num):
         else:
             labels.append(0)
     return data, labels
-    
-        
-num = 50
 
-# Generate Glenn's linear data ###################
-#a = Benchmark.generate_linear(100, 0.001, 2)
-#print()
-# X contains data points and y contains labels
-#X = a[0]
-#y = a[1]
+if __name__ == '__main__':
+    create_connection(os.getcwd() + "svmsqlite.db")
 
-#print(X)
-#print(y)
-##################################################
+num_samples = 100
 
-data, labels = generate_points_and_labels(10,10,num)
+for i in range(25):
+    print('Trial %d\n' % i)
 
-gaussian_noise = np.random.normal(scale=3.0, size=(num,2))
-poisson_noise = np.random.poisson(size=(num,2))
+    # Generate Glenn's linear data ###################
+    #  a = Benchmark.generate_linear(100, 0.001, 2)
+    #  print()
+    # X contains data points and y contains labels
+    #  X = a[0]
+    #  y = a[1]
 
-# Add in noise
-X = data #+ gaussian_noise
-y = labels
+    #  print(X)
+    #  print(y)
+    ##################################################
 
-# We create instances of SVM with different values of nu and fit out data. We do not scale our
-# data since we want to plot the support vectors
-kernelFunc = 'linear'
+    data, labels = generate_points_and_labels(10, 10, num_samples)
 
-models = (svm.NuSVC(nu=0.1, kernel=kernelFunc),
-          svm.NuSVC(nu=0.3, kernel=kernelFunc),
-          svm.NuSVC(nu=0.5, kernel=kernelFunc),
-          svm.NuSVC(nu=0.7, kernel=kernelFunc))
-models = (clf.fit(X, y) for clf in models)
+    gaussian_noise = np.random.normal(scale=3.0, size=(num_samples, 2))
+    poisson_noise = np.random.poisson(size=(num_samples, 2))
 
-# title for the plots
-titles = ('0.1',
-          '0.3',
-          '0.5',
-          '0.7')
+    # Add in noise
+    X = data + gaussian_noise
+    y = labels
 
-# Set-up 2x2 grid for plotting.
-fig, sub = plt.subplots(2, 2)
-plt.subplots_adjust(wspace=0.4, hspace=0.4)
+    # We create instances of SVM with different values of nu and fit out data. We do not scale our
+    # data since we want to plot the support vectors
+    kernelFunc = 'linear'
+
+    models = (svm.NuSVC(nu=0.1, kernel=kernelFunc),
+              svm.NuSVC(nu=0.3, kernel=kernelFunc),
+              svm.NuSVC(nu=0.5, kernel=kernelFunc),
+              svm.NuSVC(nu=0.6, kernel=kernelFunc))
+    #models = (clf.fit() for clf in models)
+    models = (clf.fit(X[:num_samples // 2], y[:num_samples // 2]) for clf in models)
+
+    # title for the plots
+    titles = ('0.1',
+              '0.3',
+              '0.5',
+              '0.6')
+
+    # Set-up 2x2 grid for plotting.
+    #  fig, sub = plt.subplots(2, 2)
+    #  plt.subplots_adjust(wspace=0.4, hspace=0.4)
 
 
-# Process Glenn's linear data ###################
-#X0 = []
-#X1 = []
-#for array_point in X:
-#    X0.append(array_point[0])
-#    X1.append(array_point[1])
+    # Process Glenn's linear data ###################
+    #  X0 = []
+    #  X1 = []
+    #  for array_point in X:
+    #      X0.append(array_point[0])
+    #      X1.append(array_point[1])
 
-#X0 = np.array(X0)
-#X1 = np.array(X1)
-#print()
-#print(X0)
-#print(X1)
-X0, X1 = X[:, 0], X[:, 1]
-xx, yy = make_meshgrid(X0, X1)
+    #  X0 = np.array(X0)
+    #  X1 = np.array(X1)
+    #  print()
+    #  print(X0)
+    #  print(X1)
+    ##################################################
 
-for clf, title, ax in zip(models, titles, sub.flatten()):
-    plot_contours(ax, clf, xx, yy,
-                  cmap=plt.cm.coolwarm, alpha=0.8)
-    ax.scatter(X0, X1, c=y, cmap=plt.cm.coolwarm, s=20, edgecolors='k')
-    ax.set_xlim(xx.min(), xx.max())
-    ax.set_ylim(yy.min(), yy.max())
-    ax.set_xlabel('X-axis')
-    ax.set_ylabel('Y-axis')
-    ax.set_xticks(())
-    ax.set_yticks(())
-    ax.set_title(title)
+    #  X0, X1 = X[:, 0], X[:, 1]
+    #  xx, yy = make_meshgrid(X0, X1)
 
-plt.show()
+    for clf, title in zip(models, titles):
+        expected = y[num_samples // 2:]
+        predicted = clf.predict(X[num_samples // 2:])
+        print("Confusion matrix nu=%s:\n%s" % (title, metrics.confusion_matrix(expected, predicted)))
+
+    print('\n')
+    #for clf, title, ax in zip(models, titles, sub.flatten()):
+    #    plot_contours(ax, clf, xx, yy,
+    #                  cmap=plt.cm.coolwarm, alpha=0.8)
+    #    ax.scatter(X0, X1, c=y, cmap=plt.cm.coolwarm, s=20, edgecolors='k')
+    #    ax.set_xlim(xx.min(), xx.max())
+    #    ax.set_ylim(yy.min(), yy.max())
+    #    ax.set_xlabel('X-axis')
+    #    ax.set_ylabel('Y-axis')
+    #    ax.set_xticks(())
+    #    ax.set_yticks(())
+    #    ax.set_title(title)
+
+    #plt.show()
