@@ -28,7 +28,10 @@ def csv_writer(data, path):
                 writer.writerow(line)
 
 #Choose to generate meshgrid or generate a confusion matrix
-meshgrids = True
+meshgrids = False
+
+point_id = 1
+result_id = 1
 
 def make_meshgrid(x, y, h=.02):
     """Create a mesh of points to plot in
@@ -83,12 +86,19 @@ def generate_points_and_labels(x, y, num):
     
     #Generate points and labels
     for i in range(0, num):
-        data[i][0]=np.random.random()*2*x-x
-        data[i][1]=np.random.random()*2*y-y
+        global point_id
+        label = 0
+        x_point = np.random.random()*2*x-x
+        y_point = np.random.random()*2*y-y
+        data[i][0]=x_point
+        data[i][1]=y_point
         if data[i][0] > data[i][1]*slope:
-            labels.append(1)
+            label = 1
         else:
-            labels.append(0)
+            label = 0
+        labels.append(label)
+        trial_data_records.append([point_id, trial_i, x_point, y_point, label])
+        point_id = point_id + 1
     return data, labels
 
 
@@ -103,17 +113,14 @@ num_trials = 25
 if meshgrids == True:
     num_trials = 1
 
-trial_data = [['trial_id', 'last_name', 'city'],
- ['Tyrese', 'Hirthe', 'Strackeport'],
- ['Jules', 'Dicki', 'Lake Nickolasville'],
- ['Dedric', 'Medhurst', 'Stiedemannberg']]
-
+trial_records = [['trial_id', 'param_varied']]
+trial_data_records = [['point_id', 'trial_id', 'x_point', 'y_point', 'label']]
+trial_results_records = [['result_id', 'trial_id', 'true_neg', 'false_neg', 'true_pos', 'false_pos', 'nu_val']]
 src = os.getcwd()
-path = os.path.join(src, 'test.csv')
-csv_writer(write_data, path)
 
-for i in range(num_trials):
-    print('Trial %d\n' % i)
+for trial_i in range(num_trials):
+    trial_records.append([trial_i, 'nu'])
+    print('Trial %d\n' % trial_i)
 
     # Generate Glenn's linear data ###################
     #  a = Benchmark.generate_linear(100, 0.001, 2)
@@ -221,5 +228,11 @@ for i in range(num_trials):
             print("Confusion matrix nu=%s:\n%s" % (title, metrics.confusion_matrix(expected, predicted)))
 
         print('\n')
+
+path = os.path.join(src, 'trials.csv')
+csv_writer(trial_records, path)
+path = os.path.join(src, 'trial_data.csv')
+csv_writer(trial_data_records, path)
+
     
     
