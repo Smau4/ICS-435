@@ -91,25 +91,26 @@ def generate_points_and_labels(x, y, num):
             labels.append(0)
     return data, labels
 
-if __name__ == '__main__':
-    database_name = "svmsqlite.db"
 
-    # create a database connection
-    conn = Database.create_connection(database_name)
-    param_varied = ('nu',)
-
-    write_data = [['first_name', 'last_name', 'city'],
- ['Tyrese', 'Hirthe', 'Strackeport'],
- ['Jules', 'Dicki', 'Lake Nickolasville'],
- ['Dedric', 'Medhurst', 'Stiedemannberg']]
-
-    csv_writer(write_data, os.getcwd())
-
+"""
+-------------------------------------
+main
+-------------------------------------
+"""
 
 num_samples = 100
 num_trials = 25
 if meshgrids == True:
     num_trials = 1
+
+trial_data = [['trial_id', 'last_name', 'city'],
+ ['Tyrese', 'Hirthe', 'Strackeport'],
+ ['Jules', 'Dicki', 'Lake Nickolasville'],
+ ['Dedric', 'Medhurst', 'Stiedemannberg']]
+
+src = os.getcwd()
+path = os.path.join(src, 'test.csv')
+csv_writer(write_data, path)
 
 for i in range(num_trials):
     print('Trial %d\n' % i)
