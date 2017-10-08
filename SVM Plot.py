@@ -5,76 +5,30 @@ import math as math
 import matplotlib.pyplot as plt
 from sklearn import svm, metrics
 # Benchmark contains Glenn's dataset generation functions
-from benchmark import Benchmark
-import sqlite3
-from sqlite3 import Error
+# from benchmark import Benchmark
+from database import Database
 import os
+import csv
+import sys
+
+
+def csv_writer(data, path):
+    """
+    Write data to a CSV file path
+    """
+    if sys.version_info < (3, 0):
+        with open(path, "wb") as csv_file:
+            writer = csv.writer(csv_file, delimiter=',')
+            for line in data:
+                writer.writerow(line)
+    else:
+        with open(path, "w", newline='') as csv_file:
+            writer = csv.writer(csv_file, delimiter=',')
+            for line in data:
+                writer.writerow(line)
 
 #Choose to generate meshgrid or generate a confusion matrix
 meshgrids = True
-
-### Database functions ########################################
-def create_connection(db_file):
-    """ create a database connection to a SQLite database """
-    try:
-        conn = sqlite3.connect(db_file)
-        print('SQLite version: %s' % sqlite3.version)
-        print()
-        return conn
-    except Error as e:
-        print(e)
-
-def create_table(conn, create_table_sql):
-    """ create a table from the create_table_sql statement
-    :param conn: Connection object
-    :param create_table_sql: a CREATE TABLE statement
-    :return:
-    """
-    try:
-        c = conn.cursor()
-        c.execute(create_table_sql)
-    except Error as e:
-        print(e)
-
-def record_trial(conn, trial):
-    """
-    Create a new project into the projects table
-    :param conn: connection to sqlite db
-    :param param_varied: parameter that is varied
-    :return: trial id
-    """
-    sql = ''' INSERT INTO Trials(param_varied)
-              VALUES(?) '''
-    cur = conn.cursor()
-    cur.execute(sql, trial)
-    return cur.lastrowid
-
-def record_data(conn, data):
-    """
-    Create a new project into the projects table
-    :param conn: connection to sqlite db
-    :param data: x coord, y coord, and a label
-    :return: data id (id for that point)
-    """
-    sql = ''' INSERT INTO TrialData(trial_id, x_point, y_point, label)
-              VALUES(?,?,?,?) '''
-    cur = conn.cursor()
-    cur.execute(sql, data)
-    return cur.lastrowid
-
-def record_results(conn, results):
-    """
-    Create a new project into the projects table
-    :param conn: connection to sqlite db
-    :param data: numbers of true negatives, false negatives, true positives, and false positives after training
-    :return: result id
-    """
-    sql = ''' INSERT INTO TrialResults(trial_id, true_neg, false_neg, true_pos, false_pos, nu_val)
-              VALUES(?,?,?,?) '''
-    cur = conn.cursor()
-    cur.execute(sql, data)
-    return cur.lastrowid
-
 
 def make_meshgrid(x, y, h=.02):
     """Create a mesh of points to plot in
@@ -141,20 +95,23 @@ if __name__ == '__main__':
     database_name = "svmsqlite.db"
 
     # create a database connection
-    conn = create_connection(database_name)
+    conn = Database.create_connection(database_name)
     param_varied = ('nu',)
 
-    if conn is not None:
-        record_trial(conn, param_varied)
-    else:
-        print("Error! cannot create the database connection.")
+    write_data = [['first_name', 'last_name', 'city'],
+ ['Tyrese', 'Hirthe', 'Strackeport'],
+ ['Jules', 'Dicki', 'Lake Nickolasville'],
+ ['Dedric', 'Medhurst', 'Stiedemannberg']]
+
+    csv_writer(write_data, os.getcwd())
+
 
 num_samples = 100
-trials = 25
+num_trials = 25
 if meshgrids == True:
-    trials = 1
+    num_trials = 1
 
-for i in range(trials):
+for i in range(num_trials):
     print('Trial %d\n' % i)
 
     # Generate Glenn's linear data ###################
