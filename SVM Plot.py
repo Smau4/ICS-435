@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn import svm, metrics
 # Benchmark contains Glenn's dataset generation functions
 # from benchmark import Benchmark
-from database import Database
+# from database import Database
 import os
 import csv
 import sys
@@ -108,10 +108,14 @@ main
 -------------------------------------
 """
 
+# num_samples = total data points
 num_samples = 100
-num_trials = 25
+# made num_trials = n+1, so that trial_id could start at 1
+num_trials = 26
+
 if meshgrids == True:
-    num_trials = 1
+    # made num_trials = 2, so that trial_id could start at 1
+    num_trials = 2
 
 trial_records = [['trial_id', 'param_varied']]
 trial_data_records = [['point_id', 'trial_id', 'x_point', 'y_point', 'label']]
@@ -172,7 +176,7 @@ for trial_i in range(1, num_trials):
               svm.NuSVC(nu=0.4, kernel=kernelFunc),
               svm.NuSVC(nu=0.5, kernel=kernelFunc),
               svm.NuSVC(nu=0.6, kernel=kernelFunc))
-    #models = (clf.fit() for clf in models)
+    # train on first half of data
     models = (clf.fit(X[:num_samples // 2], y[:num_samples // 2]) for clf in models)
 
     # title for the plots
@@ -223,10 +227,12 @@ for trial_i in range(1, num_trials):
     
     else:
         for clf, title in zip(models, titles):
+            # predict on second half of data
             expected = y[num_samples // 2:]
             predicted = clf.predict(X[num_samples // 2:])
             confuse_matrix = metrics.confusion_matrix(expected, predicted)
-            trial_results_records.append([result_id, trial_i, confuse_matrix[0][0], confuse_matrix[1][0], confuse_matrix[1][1], confuse_matrix[0][1], title])
+            tn, fp, fn, tp = confuse_matrix.ravel()
+            trial_results_records.append([result_id, trial_i, tn, fn, tp, fp, title])
             result_id = result_id + 1
             print("Confusion matrix nu=%s:\n%s" % (title, confuse_matrix))
 
