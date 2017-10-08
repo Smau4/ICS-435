@@ -118,9 +118,9 @@ trial_data_records = [['point_id', 'trial_id', 'x_point', 'y_point', 'label']]
 trial_results_records = [['result_id', 'trial_id', 'true_neg', 'false_neg', 'true_pos', 'false_pos', 'nu_val']]
 src = os.getcwd()
 
-for trial_i in range(num_trials):
+for trial_i in range(1, num_trials):
     trial_records.append([trial_i, 'nu'])
-    print('Trial %d\n' % trial_i)
+    print('Trial %s\n' % trial_i)
 
     # Generate Glenn's linear data ###################
     #  a = Benchmark.generate_linear(100, 0.001, 2)
@@ -225,7 +225,10 @@ for trial_i in range(num_trials):
         for clf, title in zip(models, titles):
             expected = y[num_samples // 2:]
             predicted = clf.predict(X[num_samples // 2:])
-            print("Confusion matrix nu=%s:\n%s" % (title, metrics.confusion_matrix(expected, predicted)))
+            confuse_matrix = metrics.confusion_matrix(expected, predicted)
+            trial_results_records.append([result_id, trial_i, confuse_matrix[0][0], confuse_matrix[1][0], confuse_matrix[1][1], confuse_matrix[0][1], title])
+            result_id = result_id + 1
+            print("Confusion matrix nu=%s:\n%s" % (title, confuse_matrix))
 
         print('\n')
 
@@ -233,6 +236,8 @@ path = os.path.join(src, 'trials.csv')
 csv_writer(trial_records, path)
 path = os.path.join(src, 'trial_data.csv')
 csv_writer(trial_data_records, path)
+path = os.path.join(src, 'trial_results.csv')
+csv_writer(trial_results_records, path)
 
     
     
