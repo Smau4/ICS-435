@@ -11,9 +11,10 @@ import matplotlib.pyplot as plt
 from sklearn import svm, metrics
 
 #Just playing around with the ErrorBar and ROC plots.
-x = 1
-y = 2
+x = [1, 2, 3]
+y = [2, 4, 3]
 yerr = 1
 
 plt.figure()
-plt.errorbar(x,y,yerr,fmt='o',color='r')
+plt.errorbar(x,y,yerr,fmt='o',color='r', capsize=5)
+plt.show()
