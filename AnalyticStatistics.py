@@ -61,13 +61,15 @@ trialdata = csv_reader(path)
 x = []
 y = []
 yerr = []
-for i in range (0, numNu*2):
-    x.append(i)
-    y.append(np.mean(trialdata[i//2][i%2]))
-    yerr.append(np.std(trialdata[i//2][i%2]))
-print x
-print y
-print yerr
+for i in range (0, numNu):
+    for j in range (0, 2):
+        x.append(i*2+j)
+        y.append(np.mean(trialdata[i][j]))
+        yerr.append(np.std(trialdata[i][j]))
+    plt.errorbar(x,y,yerr,fmt='o', capsize=5)
+    x = []
+    y = []
+    yerr = []
 '''
 axes = plt.gca()
 axes.set_xlim([0,1])
@@ -76,5 +78,4 @@ plt.plot(trialdata[1][0],trialdata[1][1],'ro')
 '''
 
 plt.figure()
-plt.errorbar(x,y,yerr,fmt='o',color='r', capsize=5)
 plt.show()
