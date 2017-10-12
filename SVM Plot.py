@@ -111,7 +111,7 @@ main
 # num_samples = total data points
 num_samples = 100
 # made num_trials = n+1, so that trial_id could start at 1
-num_trials = 26
+num_trials = 501
 
 if meshgrids == True:
     # made num_trials = 2, so that trial_id could start at 1
