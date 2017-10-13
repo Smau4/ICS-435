@@ -138,7 +138,7 @@ for trial_i in range(1, num_trials):
     ##################################################
 
     data, labels = generate_points_and_labels(10, 10, num_samples)
-    sd = 10
+    sd = 8
     
     # Generates gaussian and poisson noise.
     # gaussian_noise - error generated from gaussian curve w/ mean = 0 and sd 

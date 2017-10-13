@@ -87,8 +87,8 @@ plt.plot(trialdata[1][0],trialdata[1][1],'ro')
 '''
 
 # plt.figure()
-ax.set_title('Guassian Noise, SD=10')
-ax.set_ylim(0,1)
+ax.set_title('Guassian Noise, SD=8')
+ax.set_ylim(.1,1.1)
 ax.set_xlabel('Nu')
 ax.set_ylabel('Accuracy')
 plt.show()
