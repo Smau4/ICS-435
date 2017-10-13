@@ -138,7 +138,7 @@ for trial_i in range(1, num_trials):
     ##################################################
 
     data, labels = generate_points_and_labels(10, 10, num_samples)
-    sd = 2.0
+    sd = 8
     
     # Generates gaussian and poisson noise.
     # gaussian_noise - error generated from gaussian curve w/ mean = 0 and sd 
@@ -174,8 +174,7 @@ for trial_i in range(1, num_trials):
               svm.NuSVC(nu=0.2, kernel=kernelFunc),
               svm.NuSVC(nu=0.3, kernel=kernelFunc),
               svm.NuSVC(nu=0.4, kernel=kernelFunc),
-              svm.NuSVC(nu=0.5, kernel=kernelFunc),
-              svm.NuSVC(nu=0.6, kernel=kernelFunc))
+              svm.NuSVC(nu=0.5, kernel=kernelFunc))
     # train on first half of data
     models = (clf.fit(X[:num_samples // 2], y[:num_samples // 2]) for clf in models)
 
@@ -184,8 +183,7 @@ for trial_i in range(1, num_trials):
               '0.2',
               '0.3',
               '0.4',
-              '0.5',
-              '0.6')
+              '0.5')
     
     if meshgrids == True:
         

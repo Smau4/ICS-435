@@ -15,7 +15,7 @@ import sys
 
 numSamples = 100
 numTrials = 500
-numNu = 6
+numNu = 5
 trialIndex = 1
 nuIndex = 6
 
@@ -30,11 +30,9 @@ def csv_reader(path):
             rowCount = 0
             titles = next(reader)
             for row in reader:
-                sensitivity = float(row[4])/(float(row[4])+float(row[5]))
-                specificity = float(row[2])/(float(row[2])+float(row[3]))
+                accuracy = (float(row[2]) + float(row[4])) / (numSamples/2)
                 trialNumber = int(row[1])
-                data[rowCount][0][trialNumber-1] = sensitivity
-                data[rowCount][1][trialNumber-1] = specificity
+                data[rowCount][0][trialNumber - 1] = accuracy
                 rowCount = (rowCount+1) % numNu
             return data;
     else:
@@ -65,7 +63,7 @@ y = []
 yerr = []
 
 # nu-vals for the plot
-nu_vals = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+nu_vals = [0.1, 0.2, 0.3, 0.4, 0.5]
 
 fig = plt.figure()
 ax = fig.add_subplot(111)    # The big subplot
@@ -89,5 +87,8 @@ plt.plot(trialdata[1][0],trialdata[1][1],'ro')
 '''
 
 # plt.figure()
-
+ax.set_title('Guassian Noise, SD=8')
+ax.set_ylim(.1,1.1)
+ax.set_xlabel('Nu')
+ax.set_ylabel('Accuracy')
 plt.show()
