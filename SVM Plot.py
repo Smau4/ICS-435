@@ -163,7 +163,7 @@ for trial_i in range(1, num_trials):
 #    print (poisson_sum/200)
 
     # Add in noise
-    X = data + poisson_noise
+    X = data + gaussian_noise
     y = labels
 
     # We create instances of SVM with different values of nu and fit out data. We do not scale our
